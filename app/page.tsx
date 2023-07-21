@@ -11,8 +11,8 @@ import { useChat } from 'ai/react';
 
 export default function Page() {
   const [prompt, setPrompt] = useState('Test');
-  const [generatedJSON, setGeneratedJSON] = useState(null);
-  const [jsonError, setJsonError] = useState(null);
+  const [generatedJSON, setGeneratedJSON] = useState<string | null>(null);
+  const [jsonError, setJsonError] = useState<string | null>(null);
   const jsonRef = useRef<null | HTMLDivElement>(null);
 
   const scrollToJSON = () => {
@@ -37,7 +37,7 @@ export default function Page() {
     handleSubmit(e);
   };
 
-  const isValidJSON = (str) => {
+  const isValidJSON = (str: string) => {
     try {
       JSON.parse(str);
       return true;
@@ -187,11 +187,12 @@ export default function Page() {
                   }}
                   key={generatedJSON}
                 >
-                  <span>
-                    {Object.entries(JSON.parse(generatedJSON)).map(([key, value]) => (
-                      <p key={key}>
-                        {key}: {value}
-                      </p>
+                  <span className='flex flex-col'>
+                  {Object.entries(JSON.parse(generatedJSON)).map(([key, value]: [string, any]) => (
+                      <ul key={key} className='flex'>
+                        <li>{key}:</li> 
+                        <li>{value}</li>
+                      </ul>
                     ))}
                   </span>
                 </div>
