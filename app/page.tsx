@@ -9,11 +9,83 @@ import DropDown, { VibeType } from '../components/DropDown';
 import Header from '../components/Header';
 import { useChat } from 'ai/react';
 
+const RenderNestedObject = ({ data, isNested }: { data: any, isNested?: boolean }) => {
+  if (Array.isArray(data)) {
+    return (
+      <ul className={isNested ? 'pl-4' : ''}>
+        {data.map((item, index) => (
+          <li key={index}>
+            <RenderNestedObject data={item} isNested />
+          </li>
+        ))}
+      </ul>
+    );
+  }
+
+  if (typeof data === 'object' && data !== null) {
+    return (
+      <ul className={isNested ? 'pl-4' : ''}>
+        {Object.entries(data).map(([key, value], index) => (
+          <li key={index}>
+            <strong>{key}:</strong> <RenderNestedObject data={value} isNested />
+          </li>
+        ))}
+      </ul>
+    );
+  }
+
+  return <>{data}</>;
+};
+
 export default function Page() {
-  const [prompt, setPrompt] = useState('Test');
+  const [prompt, setPrompt] = useState<string>('');
+  const [story, setStory] = useState('Test');
+  const [story2Prompt, setStory2Prompt] = useState<string>('');
   const [generatedJSON, setGeneratedJSON] = useState<string | null>(null);
   const [jsonError, setJsonError] = useState<string | null>(null);
   const jsonRef = useRef<null | HTMLDivElement>(null);
+
+  const shape = {
+    id: `1`,
+    sentence: '',
+    prompt: '',
+    characters: [
+      {
+        name: ''
+      }
+    ],
+    location: '',
+    mood : '',
+    camera_angle: '',
+  }
+
+  useEffect(() => {
+    setStory2Prompt(
+      `Generate a an object from the following story. 
+      The array of Scene objects should look like this:
+
+      Here are the possible camera angles:
+      close-up, medium, long, wide, extreme-close-up, point-of-view, birds-eye-view, low-angle, high-angle, dolly, establishing, extreme-long-shot 
+
+      Here are the possible moods:
+      cheerful, melancholic, tense, mysterious, romantic, foreboding, humorous, serene, furious, nostalgic, pensive, euphoric, despairing, suspenseful, inspirational,
+      
+      The 'scene' object should contain the following properties:
+      - 'id': a unique identifier for the scene.
+      - 'sentence': a single sentence from the story.
+      - 'prompt': a text-to-image prompt for Dalle to create.
+      - 'characters': an array of characters present in the sentence.
+      - 'location': the location where the sentence is set.
+      - 'mood': the mood of the scene. Make sure to always include a mood.
+      - 'camera_angle': the camera angle of the scene. Make sure to always include a Camera Angle.
+
+      Now, transform the following story into the described JSON format: ${String(story)}
+      Don't add any breaks or newlines in your response.
+      Return the response of the story as a JSON object filled out with the story in the shape of ${JSON.stringify(shape)}.`
+    )
+  }, [prompt])
+
+
 
   const scrollToJSON = () => {
     if (jsonRef.current !== null) {
@@ -24,7 +96,7 @@ export default function Page() {
   const { input, handleInputChange, handleSubmit, isLoading, messages } =
     useChat({
       body: {
-        prompt
+        prompt: story2Prompt
       },
       onResponse() {
         scrollToJSON();
@@ -33,7 +105,7 @@ export default function Page() {
 
   const onSubmit = (e: any) => {
     e.preventDefault();
-    setPrompt(input);
+    setStory(input);
     handleSubmit(e);
   };
 
@@ -191,7 +263,7 @@ export default function Page() {
                   {Object.entries(JSON.parse(generatedJSON)).map(([key, value]: [string, any]) => (
                       <ul key={key} className='flex'>
                         <li>{key}:</li> 
-                        <li>{value}</li>
+                        <strong>{key}:</strong> <RenderNestedObject data={value} isNested />
                       </ul>
                     ))}
                   </span>
