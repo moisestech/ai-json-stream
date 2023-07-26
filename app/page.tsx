@@ -225,7 +225,6 @@ export default function Page() {
                   <span className='flex flex-col'>
                   {Object.entries(JSON.parse(generatedJSON)).map(([key, value]: [string, any]) => (
                       <ul key={key} className='flex'>
-                        <li>{key}:</li> 
                         <strong>{key}:</strong> <RenderNestedObject data={value} isNested />
                       </ul>
                     ))}
