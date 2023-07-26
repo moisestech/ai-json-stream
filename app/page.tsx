@@ -1,6 +1,6 @@
 'use client';
 
-// Return in your response only a valid JSON object in this shape { "id": "id1", "name": "joe", "location": "new york", "age": 30 }
+// userInput: Return in your response only a valid JSON object in this shape { "id": "id1", "name": "joe", "location": "new york", "age": 30 }
 
 import Image from 'next/image';
 import { useRef, useState, useEffect } from 'react';
@@ -39,18 +39,15 @@ const RenderNestedObject = ({ data, isNested }: { data: any, isNested?: boolean 
 
 export default function Page() {
   const [prompt, setPrompt] = useState<string>('');
-  const [story, setStory] = useState('Test');
+  const [userInput, setUserInput] = useState('Test');
   const [userPrompt, setUserPrompt] = useState<string>('');
   const [generatedJSON, setGeneratedJSON] = useState<string | null>(null);
   const [jsonError, setJsonError] = useState<string | null>(null);
   const jsonRef = useRef<null | HTMLDivElement>(null);
 
   useEffect(() => {
-    setUserPrompt(
-      `Return in your response only a valid JSON object in this shape { "id": "id1", "name": "joe", "location": "new york", "age": 30 }`
-    )
-  }, [prompt])
-
+    setUserPrompt(userInput)
+  }, [userInput])
 
 
   const scrollToJSON = () => {
@@ -71,7 +68,7 @@ export default function Page() {
 
   const onSubmit = (e: any) => {
     e.preventDefault();
-    setStory(input);
+    setUserInput(input);
     handleSubmit(e);
   };
 
